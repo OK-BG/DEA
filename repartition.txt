@@ -1,4 +1,4 @@
 - generation des données (TOM)
-- comprehension algo ()
-- metrics ()
-- paralellization/GPU ? ()
+- comprehension algo (BASTIAN COME)
+- metrics (LINO)
+- paralellization/GPU ? (TOM)
