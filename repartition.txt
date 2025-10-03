@@ -2,3 +2,10 @@
 - comprehension algo (BASTIAN COME)
 - metrics (LINO)
 - paralellization/GPU ? (TOM)
+
+
+------ choix des paramètres ------
+- perplexity : valeur (5,50,5) ; larger datasets usually require a larger perplexity, it can be defined as the balance between preserving the global and the local structure of the data.
+- early_exaggeration : it increases the attractive forces between points and allowd points to move around more freely, finding their nearest beightbors more easily.
+- max_iter (default=1000), à changer si l'iteration est trop longue
+
