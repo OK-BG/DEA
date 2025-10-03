@@ -1,0 +1,4 @@
+- generation des données (TOM)
+- comprehension algo ()
+- metrics ()
+- paralellization/GPU ? ()
