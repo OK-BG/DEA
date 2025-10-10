@@ -1,0 +1,9 @@
+Explication sur les notions de local et global :
+  - Définition simple : Structure locale : concerne les relations entre points très proches dans l’espace d’origine.
+
+Choix des métriques : 
+  - 1 global : STRESS, recommandé par le prof, qui sert à évaluer, cluster à cluster la proximité,
+  - 1 local : Trustworthiness, permet de comparer les proximités entre points dans un seul cluster,  va comparer les échelles de distances de 2/3D à nDimensions, 
+  - 1 de complémentarité : Continuity, qui marche en complémentarité avec Trustworthiness, va se concentrer sur la transition nDimensions à 2/3D,
+
+
