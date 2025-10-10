@@ -7,7 +7,21 @@ def save_data(X, y, iter):
     np.savez(f"datas/data_iter_{iter}.npz", X_all=X, y_all=y)
 
 # centers = nombre de clusters, et y1 y recupere l'etiquette correspondant (0, 1 ou 2 en ft du cluster), n_features = nombre de dimensions, random_state = permet d'avoir tjrs le meme resultat quand on lance le code (42 est la convention)
-def new_points(n_samples, n_noise, centers, n_features, seed, cluster_std):
+def new_points(n_samples: int, n_noise: int, centers: int, n_features: int, seed: int, cluster_std: int):
+    """
+    
+
+    Args:
+        n_samples (int): Total numbers of points
+        n_noise (int): 
+        centers (int): 
+        n_features (int): 
+        seed (int): 
+        cluster_std (int): How spread the cluster will be
+
+    Returns:
+        _type_: _description_
+    """
     X1, y1 = make_blobs(n_samples=n_samples, centers=centers, n_features=n_features, random_state=seed, cluster_std=cluster_std) # caracteristiques : https://www.nature.com/articles/s41467-019-13056-x#:~:text=structure%20can%20be%20seen%20in,depending%20on%20the%20random%20seed
     # cluster_std a tester : [0.5, 1.0, 2.0], noise_std a tester : 0.5 Ã— cluster_std (faible bruit relatif), 1.0 Ã— cluster_std (bruit comparable), 3.0 Ã— cluster_std (bruit fort), 5.0 Ã— cluster_std (bruit tres fort / outliers)
 
