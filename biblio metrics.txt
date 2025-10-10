@@ -6,7 +6,105 @@ Choix des métriques :
   - 1 local : Trustworthiness, permet de comparer les proximités entre points dans un seul cluster,  va comparer les échelles de distances de 2/3D à nDimensions, 
   - 1 de complémentarité : Continuity, qui marche en complémentarité avec Trustworthiness, va se concentrer sur la transition nDimensions à 2/3D,
 
+Liens utiles : 
+- Intro au codage des métriques
+pyDRMetrics - A Python toolkit for dimensionality reduction quality assessment
+https://pmc.ncbi.nlm.nih.gov/articles/PMC7887408/
 
-
-10/10 conv chatGPT 5:
+10/10 conversation avec chatGPT 5:
 https://chatgpt.com/share/68e8c8e0-654c-800a-8f21-d5891fe3c249
+
+On crée un nouveau code qui reprend les données obtenues après le tsne (donc input à modifier pour adapter en fonction du nom/nb d'itérations)
+STRESS par chatGPT : 
+import numpy as np
+from sklearn.metrics import pairwise_distances
+
+def kruskal_stress(X_high, X_low, metric='euclidean', scale=True, eps=1e-12):
+    """
+    Calcule le Kruskal STRESS-1 entre les distances haute et basse dimension.
+
+    Parameters
+    ----------
+    X_high : array (n_samples, n_features)
+        Données d'origine (haute dimension)
+    X_low : array (n_samples, n_components)
+        Données projetées (typiquement t-SNE, 2D ou 3D)
+    metric : str
+        Métrique de distance ('euclidean', 'cosine', etc.)
+    scale : bool
+        Si True, ajuste un facteur d’échelle optimal a*
+    eps : float
+        Valeur de sécurité pour éviter la division par zéro
+
+    Returns
+    -------
+    stress : float
+        Valeur du STRESS (entre 0 et 1)
+    a_opt : float
+        Facteur d’échelle optimal utilisé
+    """
+    # Distances paires
+    D_high = pairwise_distances(X_high, metric=metric)
+    D_low = pairwise_distances(X_low, metric=metric)
+
+    # Aplatir en vecteurs (i<j)
+    iu = np.triu_indices_from(D_high, k=1)
+    dh = D_high[iu]
+    dl = D_low[iu]
+
+    # Mise à l’échelle (optionnelle)
+    if scale:
+        a_opt = np.dot(dh, dl) / (np.dot(dl, dl) + eps)
+    else:
+        a_opt = 1.0
+
+    # Calcul du stress
+    num = np.sum((dh - a_opt * dl) ** 2)
+    den = np.sum(dh ** 2) + eps
+    stress = np.sqrt(num / den)
+
+    return stress, a_opt
+
+Trustworthiness : directement implémenté dans scikit learn
+
+from sklearn.manifold import trustworthiness
+T = trustworthiness(X_high, Y_tsne, n_neighbors=k)
+
+Continuity : 
+import numpy as np
+
+# rangs en high-dim (ordre croissant de distances, on ignore i==i)
+order_high = np.argsort(D_high, axis=1)
+# idem en low-dim
+order_low  = np.argsort(D_low, axis=1)
+
+# top-k voisins (exclure soi-même si présent)
+topk_high = order_high[:, 1:k+1]
+topk_low  = order_low[:, 1:k+1]
+
+# pour continuity: pénalise les voisins en high qui disparaissent en low
+# astuce: construire un tableau rank_low[i, j] = rang de j dans l'ordre low de i
+n = D_high.shape[0]
+rank_low = np.empty_like(order_low)
+for i in range(n):
+    rank_low[i, order_low[i]] = np.arange(n)  # rangs 0..n-1
+
+penalty = 0
+for i in range(n):
+    set_low = set(topk_low[i])
+    missing = [j for j in topk_high[i] if j not in set_low]
+    # somme des (rank_low[i,j] - k) pour j manquants
+    penalty += sum(rank_low[i, j] - k for j in missing)
+
+C = 1 - (2 / (n * k * (2*n - 3*k - 1))) * penalty
+
+
+
+
+
+
+
+
+
+
+
