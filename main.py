@@ -11,13 +11,30 @@ def nb_parallelisation(n):
 
 
 # Génération des points en parallèle
-def generate_points(seed, n_features, centers):
-    n_samples = 500
-    liste_noises = [3/100, 10/100, 20/100]
-    n_noise = random.choice(liste_noises)
-    centers = centers
+def generate_points(seed, n_features, centers, std_noise=0, n_samples = 500):
+    """_summary_
+
+    Args:
+        seed (_type_): _description_
+        n_features (_type_): _description_
+        centers (_type_): _description_
+        std_noise (float): percent of the cluster std used for the noise std
+
+    Returns:
+        _type_: _description_
+    """
+    
+    #liste_noises = [3/100, 10/100, 20/100]
+    #n_noise = random.choice(liste_noises)
     cluster_std = np.random.uniform(0.5, 2.5)
-    return new_points(n_samples, n_noise, centers, n_features, seed, cluster_std)
+    return new_points(n_samples,
+                      #n_noise,
+                      std_noise,
+                      centers,
+                      n_features,
+                      cluster_std,
+                      seed
+                      )
 
 def recolte_datas(seeds, n_features, centers):
     n_features = n_features
