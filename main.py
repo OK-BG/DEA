@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from joblib import Parallel, delayed
-from create_data import new_points
+from create_data import new_points, save_data
 import random
 
 
@@ -39,7 +39,7 @@ def begin_points():
         centers += 2
         results = recolte_datas(seeds, n_features, centers)
         X_total, y_total = fusion_datas(results)
-
+        save_data(X_total, y_total, i)
 
 
 
