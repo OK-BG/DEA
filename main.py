@@ -3,22 +3,30 @@ import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from joblib import Parallel, delayed
 from create_data import new_points, save_data
-import random
 
 
-def nb_parallelisation(n):
-    return list(range(n))
+# def nb_parallelisation(n):
+#     return list(range(n))
 
 
 # Génération des points en parallèle
-def generate_points(seed, n_features, centers, std_noise=0, n_samples = 500):
+def generate_points(
+        n_features: int,
+        centers: int,
+        seed:int|None|np.random.RandomState=None,
+        pct_noise: float=0,
+        n_samples: int = 500,
+        cluster_std = np.random.uniform(0.5, 2.5)
+        ):
     """_summary_
 
     Args:
-        seed (_type_): _description_
-        n_features (_type_): _description_
-        centers (_type_): _description_
-        std_noise (float): percent of the cluster std used for the noise std
+        seed (int|None|np.random.RandomState): _description_
+        n_features (int): _description_
+        centers (int): _description_
+        pct_noise (float): percent of the cluster std used for the noise std
+        n_samples (int): Total number of points
+        cluster_std (float): Std dev among a cluster
 
     Returns:
         _type_: _description_
@@ -26,19 +34,17 @@ def generate_points(seed, n_features, centers, std_noise=0, n_samples = 500):
     
     #liste_noises = [3/100, 10/100, 20/100]
     #n_noise = random.choice(liste_noises)
-    cluster_std = np.random.uniform(0.5, 2.5)
+    
     return new_points(n_samples,
-                      #n_noise,
-                      std_noise,
+                      pct_noise,
                       centers,
                       n_features,
                       cluster_std,
                       seed
                       )
 
-def recolte_datas(seeds, n_features, centers):
-    n_features = n_features
-    results = Parallel(n_jobs=-1)(delayed(generate_points)(s, n_features, centers) for s in seeds)
+def recolte_datas(seeds, n_features, centers, cluster_std = np.random.uniform(0.5, 2.5), pct_noise = np.random.uniform(0, 1)):
+    results = Parallel(n_jobs=-1)(delayed(generate_points)(n_features=n_features, centers=centers, cluster_std=cluster_std, pct_noise=pct_noise) for s in seeds)
     return results
 
 def fusion_datas(results):
@@ -47,8 +53,8 @@ def fusion_datas(results):
     return X_total, y_total
 
 
-def begin_points():
-    seeds = nb_parallelisation(4)
+def begin_points(n=4):
+    seeds = [i for i in range(n)]#nb_parallelisation(4)
     n_features = 2
     centers = 4
     for i in range(30):
@@ -61,8 +67,33 @@ def begin_points():
 
 
 
+if __name__=="__main__":
+    X, y = generate_points(2, 5, cluster_std=1.5, pct_noise=0.2, n_samples=1000)
+    
+    tsne = TSNE(perplexity=50, n_iter=1500, init="random")
+    tsne_pca = TSNE(perplexity=50, n_iter=1500, init="pca")
+    result = tsne.fit_transform(X)
+    result_pca = tsne_pca.fit_transform(X)
+    
+
+    fig, ax = plt.subplots(ncols=3)
+    
+    ax[0].scatter(X[:, 0], X[:, 1], c=y)
+    ax[0].set_title("Avant TSNE")
+    
 
 
+    ax[1].scatter(result[:, 0], result[:, 1], c=y)
+    ax[1].set_title("Apres TSNE")
+
+    ax[2].scatter(result_pca[:, 0], result_pca[:, 1], c=y)
+    ax[2].set_title("Apres TSNE (PCA)")
+
+
+    plt.show()
+
+
+"""
 tsne = TSNE(n_components=2, init='pca', perplexity=80, n_iter=1500, random_state=42)
 X2_total = tsne.fit_transform(X_total)
 
@@ -82,3 +113,4 @@ plt.title("t-SNE global sur les 4 seeds (points générés en parallèle)")
 plt.xlabel("t-SNE 1")
 plt.ylabel("t-SNE 2")
 plt.show()
+"""
