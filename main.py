@@ -4,6 +4,7 @@ from sklearn.manifold import TSNE
 from joblib import Parallel, delayed
 from create_data import new_points, save_data
 
+import time
 
 # def nb_parallelisation(n):
 #     return list(range(n))
@@ -12,7 +13,7 @@ from create_data import new_points, save_data
 # Génération des points en parallèle
 def generate_points(
         n_features: int,
-        centers: int,
+        centers: int,   
         seed:int|None|np.random.RandomState=None,
         pct_noise: float=0,
         n_samples: int = 500,
@@ -31,10 +32,10 @@ def generate_points(
     Returns:
         _type_: _description_
     """
-    
+
     #liste_noises = [3/100, 10/100, 20/100]
     #n_noise = random.choice(liste_noises)
-    
+
     return new_points(n_samples,
                       pct_noise,
                       centers,
@@ -68,12 +69,46 @@ def begin_points(n=4):
 
 
 if __name__=="__main__":
-    X, y = generate_points(2, 5, cluster_std=1.5, pct_noise=0.2, n_samples=1000)
+
+    n_dim = [2, 10, 50] # Mettre en variable globale ?
+    centers = [3, 5, 10]
+    X = {}
+    y = {}
+    for cent in centers:
+        for dim in n_dim:
+            X_arr, y_arr = generate_points(n_features=dim, centers=cent, cluster_std=1.5, pct_noise=0.2, n_samples=5000)
+            X[f"{cent}"][f"{dim}"] = X_arr
+            y[f"{cent}"][f"{dim}"] = y_arr
+            np.save(f"datas/points_X_dim_cent_{dim}_{cent}.npy", X[f"{dim}"])
+            np.save(f"datas/points_y_dim_cent_{dim}_{cent}.npy", y[f"{dim}"])
     
+    print("start TSNE")
+
+
+
+    perpl = [30, 50] # Potentiellement rajouter valeurs si temps
+    exag = [12, 20] # Utile rajouter valeurs ?
+
+    for perpx in perpl:
+        for ex in exag:
+            tsne = TSNE(perplexity=perpx, n_iter=1500)
+            print("TSNE done")
+            for dim in n_dim:
+                res = tsne.fit_transform(X[f"{dim}"])
+                np.save(f"datas/tsne_perp_ex_dim_{perpx}_{ex}_{dim}.npy", res)
+                print("dim done")
+    
+    
+    '''
     tsne = TSNE(perplexity=50, n_iter=1500, init="random")
+    print(f"TSNE {time.time() - ori}")
     tsne_pca = TSNE(perplexity=50, n_iter=1500, init="pca")
+    print(f"TSNE PCA {time.time() - ori}")
     result = tsne.fit_transform(X)
+    print(f"TSNE out {time.time() - ori}")
     result_pca = tsne_pca.fit_transform(X)
+    print(f"TSNE 2 out {time.time() - ori}")
+    
     
 
     fig, ax = plt.subplots(ncols=3)
@@ -89,8 +124,8 @@ if __name__=="__main__":
     ax[2].scatter(result_pca[:, 0], result_pca[:, 1], c=y)
     ax[2].set_title("Apres TSNE (PCA)")
 
-
     plt.show()
+    '''
 
 
 """
