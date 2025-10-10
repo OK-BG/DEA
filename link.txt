@@ -1,1 +1,3 @@
 https://link.springer.com/chapter/10.1007/978-1-4757-2711-1_3
+https://www.geeksforgeeks.org/machine-learning/ml-t-distributed-stochastic-neighbor-embedding-t-sne-algorithm/
+https://builtin.com/data-science/tsne-python
