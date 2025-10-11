@@ -19,7 +19,7 @@ def new_points(n_samples: int,
 
     Args:
         n_samples (int): Total numbers of points
-        n_noise (float): standard deviation of the noise ?
+        pct_noise (float): standard deviation of the noise ?
         centers (int): Number of clusters
         n_features (int): Number of dimensions
         cluster_std (float): Standard deviation among a cluster
